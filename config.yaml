@@ -1,0 +1,15 @@
+
+httpserver:
+  host: localhost
+  port: 8080
+
+grpcserver:
+  host: localhost
+  port: 9090
+
+database:
+  host: localhost
+  port: 5432
+  user: grpc-test-proje
+  pass: grpc-test-proje
+  name: grpc-test-proje

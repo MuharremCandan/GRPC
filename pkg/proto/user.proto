@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package db;
+
+option go_package = "test-grpc-project/pkg/pb";
+
+message User {
+  uint32 id = 1;
+  string name = 2;
+  string email = 3;
+  string password = 4;
+  string created_at = 5;
+}
+
+message CreateUseRequest {
+    string name = 1;
+    string email = 2;
+    string password = 3;
+}
+
+message CreateUseResponse{
+    User user = 1;
+} 
+
+service GrpcProject {
+    rpc CreateUser (CreateUseRequest) returns (CreateUseResponse){}
+}

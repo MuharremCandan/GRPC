@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: grpc-project-db
+    environment:
+      POSTGRES_HOST: localhost
+      POSTGRES_DB: grpc-test-proje
+      POSTGRES_USER: grpc-test-proje
+      POSTGRES_PASSWORD: grpc-test-proje
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Add your other services (e.g., web application) here
+
+volumes:
+  postgres_data:

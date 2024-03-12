@@ -1,18 +1,21 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net"
 	"net/http"
-	"strconv"
 	"test-grpc-project/pkg/config"
 	"test-grpc-project/pkg/db"
 	"test-grpc-project/pkg/gapi"
-	"test-grpc-project/pkg/model"
-	"test-grpc-project/pkg/utils"
-	"time"
+	"test-grpc-project/pkg/handler"
+	"test-grpc-project/pkg/pb"
+	"test-grpc-project/pkg/repository"
+	"test-grpc-project/pkg/router"
+	"test-grpc-project/pkg/service"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"gorm.io/gorm"
 )
 
@@ -25,8 +28,37 @@ func main() {
 
 	db := db.ConnectDb(&config)
 
+	go runGatewayServer(db, config)
 	gapi.NewServer(&config, db).NewgRpcServer()
 
+}
+
+func runGatewayServer(db *gorm.DB, config config.Config) {
+	server := gapi.NewServer(&config, db)
+
+	grpcMux := runtime.NewServeMux()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	err := pb.RegisterGrpcProjectHandlerServer(ctx, grpcMux, server)
+
+	if err != nil {
+		log.Fatalf("failed to register handler server: %v", err)
+	}
+
+	mux := http.NewServeMux()
+	mux.Handle("/", grpcMux)
+
+	listener, err := net.Listen("tcp", net.JoinHostPort(config.HttpServer.Host, config.HttpServer.Port))
+	if err != nil {
+		log.Fatalf("failed to create a listener : %v", err)
+	}
+	log.Printf("start HTTP gateway server at %s", listener.Addr().String())
+	err = http.Serve(listener, mux)
+
+	if err != nil {
+		log.Fatalf("failed to serve HTTP gateway server : %v", err)
+	}
 }
 
 func runHttpServer(db *gorm.DB, config config.Config) {
@@ -36,51 +68,9 @@ func runHttpServer(db *gorm.DB, config config.Config) {
 		return c.SendString("Hello World!")
 	})
 
-	app.Post("/createuser", func(c *fiber.Ctx) error {
-		var user model.User
-		if err := c.BodyParser(&user); err != nil {
-			return c.Status(400).SendString(err.Error())
-		}
+	userHandler := handler.NewUserHandler(service.NewUserService(repository.NewUserRepository(db)))
 
-		hashedPassword, err := utils.HashPassword(user.Password)
-		if err != nil {
-			return c.Status(400).SendString(err.Error())
-		}
-		user.Password = string(hashedPassword)
-		if err := db.Create(&user).Error; err != nil {
-			return c.Status(http.StatusInternalServerError).JSON(
-				map[string]string{
-					"error": err.Error(),
-				},
-			)
-		}
-		user.CreatedAt = time.Now()
-
-		return c.Status(200).JSON(user)
-	})
-
-	app.Delete("/deleteuser:id", func(c *fiber.Ctx) error {
-
-		id := c.Params("id")
-		idToi, err := strconv.Atoi(id)
-		if err != nil {
-			return c.Status(http.StatusInternalServerError).JSON(
-				map[string]string{
-					"error": err.Error(),
-				},
-			)
-		}
-
-		if err := db.Where("id = ?", idToi).Delete(&model.User{}).Error; err != nil {
-			return c.Status(http.StatusInternalServerError).JSON(
-				map[string]string{
-					"error": err.Error(),
-				},
-			)
-		}
-
-		return c.Status(200).SendString("User deleted!")
-	})
+	router.NewRouter(userHandler).LoadRouter(app)
 
 	app.Listen(net.JoinHostPort(config.HttpServer.Host, config.HttpServer.Port))
 }

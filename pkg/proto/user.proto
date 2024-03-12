@@ -1,8 +1,9 @@
 syntax = "proto3";
 
-package db;
+package user;
 
 option go_package = "test-grpc-project/pkg/pb";
+import "pkg/proto/google/api/annotations.proto";
 
 message User {
   uint32 id = 1;
@@ -23,5 +24,17 @@ message CreateUseResponse{
 } 
 
 service GrpcProject {
-    rpc CreateUser (CreateUseRequest) returns (CreateUseResponse){}
+    rpc CreateUser (CreateUseRequest) returns (CreateUseResponse){
+        option (google.api.http) = {
+            post: "/v1/create_user",
+            body: "*"
+        };
+    }
+
+//     rpc CreateUser(CreateUseRequest) returns (CreateUseResponse) {
+// +       option (google.api.http) = {
+// +           post: "/v1/create_user"
+// +           body: "*"
+// +       };
+// +   }
 }

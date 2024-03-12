@@ -32,7 +32,7 @@ var _ = utilities.NewDoubleArray
 var _ = metadata.Join
 
 func request_GrpcProject_CreateUser_0(ctx context.Context, marshaler runtime.Marshaler, client GrpcProjectClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateUseRequest
+	var protoReq CreateUserRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -45,7 +45,7 @@ func request_GrpcProject_CreateUser_0(ctx context.Context, marshaler runtime.Mar
 }
 
 func local_request_GrpcProject_CreateUser_0(ctx context.Context, marshaler runtime.Marshaler, server GrpcProjectServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateUseRequest
+	var protoReq CreateUserRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {

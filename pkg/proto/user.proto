@@ -13,28 +13,22 @@ message User {
   string created_at = 5;
 }
 
-message CreateUseRequest {
+message CreateUserRequest {
     string name = 1;
     string email = 2;
     string password = 3;
 }
 
-message CreateUseResponse{
+message CreateUserResponse{
     User user = 1;
+    string message = 2;
 } 
 
 service GrpcProject {
-    rpc CreateUser (CreateUseRequest) returns (CreateUseResponse){
+    rpc CreateUser (CreateUserRequest) returns (CreateUserResponse){
         option (google.api.http) = {
             post: "/v1/create_user",
             body: "*"
         };
     }
-
-//     rpc CreateUser(CreateUseRequest) returns (CreateUseResponse) {
-// +       option (google.api.http) = {
-// +           post: "/v1/create_user"
-// +           body: "*"
-// +       };
-// +   }
 }

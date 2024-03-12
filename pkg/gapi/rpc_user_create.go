@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUseRequest) (*pb.CreateUseResponse, error) {
+func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb.CreateUserResponse, error) {
 
 	hashedPassword, err := utils.HashPassword(req.GetPassword())
 	if err != nil {
@@ -29,8 +29,9 @@ func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUseRequest) 
 		return nil, status.Errorf(codes.Internal, "failed to create user :%s", err)
 	}
 
-	rsp := &pb.CreateUseResponse{
-		User: converter(user),
+	rsp := &pb.CreateUserResponse{
+		User:    converter(user),
+		Message: "created user",
 	}
 
 	return rsp, nil

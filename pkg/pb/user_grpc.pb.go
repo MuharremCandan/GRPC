@@ -26,7 +26,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GrpcProjectClient interface {
-	CreateUser(ctx context.Context, in *CreateUseRequest, opts ...grpc.CallOption) (*CreateUseResponse, error)
+	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
 }
 
 type grpcProjectClient struct {
@@ -37,8 +37,8 @@ func NewGrpcProjectClient(cc grpc.ClientConnInterface) GrpcProjectClient {
 	return &grpcProjectClient{cc}
 }
 
-func (c *grpcProjectClient) CreateUser(ctx context.Context, in *CreateUseRequest, opts ...grpc.CallOption) (*CreateUseResponse, error) {
-	out := new(CreateUseResponse)
+func (c *grpcProjectClient) CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error) {
+	out := new(CreateUserResponse)
 	err := c.cc.Invoke(ctx, GrpcProject_CreateUser_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (c *grpcProjectClient) CreateUser(ctx context.Context, in *CreateUseRequest
 // All implementations must embed UnimplementedGrpcProjectServer
 // for forward compatibility
 type GrpcProjectServer interface {
-	CreateUser(context.Context, *CreateUseRequest) (*CreateUseResponse, error)
+	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
 	mustEmbedUnimplementedGrpcProjectServer()
 }
 
@@ -58,7 +58,7 @@ type GrpcProjectServer interface {
 type UnimplementedGrpcProjectServer struct {
 }
 
-func (UnimplementedGrpcProjectServer) CreateUser(context.Context, *CreateUseRequest) (*CreateUseResponse, error) {
+func (UnimplementedGrpcProjectServer) CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
 func (UnimplementedGrpcProjectServer) mustEmbedUnimplementedGrpcProjectServer() {}
@@ -75,7 +75,7 @@ func RegisterGrpcProjectServer(s grpc.ServiceRegistrar, srv GrpcProjectServer) {
 }
 
 func _GrpcProject_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateUseRequest)
+	in := new(CreateUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func _GrpcProject_CreateUser_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: GrpcProject_CreateUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GrpcProjectServer).CreateUser(ctx, req.(*CreateUseRequest))
+		return srv.(GrpcProjectServer).CreateUser(ctx, req.(*CreateUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
